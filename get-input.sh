@@ -32,9 +32,14 @@ mkdir -p "$OUTPUT_DIR"
 
 # Fetch input from the API
 echo "Fetching input for year $YEAR, day $DAY..."
-if curl -s --cookie "session=$AOC_TOKEN" "$URL" -o "$OUTPUT_FILE"; then
+HTTP_STATUS=$(curl -s -w "%{http_code}" --cookie "session=$AOC_TOKEN" "$URL" -o "$OUTPUT_FILE.tmp")
+
+if [ "$HTTP_STATUS" -eq 200 ]; then
+  mv "$OUTPUT_FILE.tmp" "$OUTPUT_FILE"
   echo "Input for year $YEAR, day $DAY saved to $OUTPUT_FILE."
 else
-  echo "Error: Failed to fetch input for year $YEAR, day $DAY."
+  rm "$OUTPUT_FILE.tmp"
+  rmdir "$OUTPUT_DIR"
+  echo "Error: Failed to fetch input for year $YEAR, day $DAY. HTTP status code: $HTTP_STATUS."
   exit 1
 fi
