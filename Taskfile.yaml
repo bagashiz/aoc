@@ -1,0 +1,35 @@
+# https://taskfile.dev
+
+version: "3"
+
+dotenv:
+  - ".env"
+
+tasks:
+  default:
+    desc: "Gettings started"
+    cmds:
+      - task: install
+      - task: lint
+
+  install:
+    desc: "Install dependencies"
+    cmds:
+      - go mod download
+
+  lint:
+    desc: "Run linter"
+    cmd: golangci-lint run ./...
+
+  tests:
+    desc: "Run tests"
+    cmds:
+      - go test -v ./... -race -cover -timeout 30s -count 1
+
+  test-*-*:
+    desc: "Run test on specific directory"
+    vars:
+      YEAR: "{{index .MATCH 0}}"
+      DAY: "{{index .MATCH 1}}"
+    cmds:
+      - go test -v ./{{.YEAR}}/day{{.DAY}} -race -cover -timeout 30s -count 1
